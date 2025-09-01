@@ -1,14 +1,7 @@
 package com.example.weatherapp.presentation.weather_details
 
-import android.content.ClipData.Item
-import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,9 +23,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,55 +58,83 @@ fun WeatherDetailsScreen(
             .verticalScroll(scrollState)
     ) {
         screenState.data?.let { weather ->
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "Name :",
+                fontSize = 18.sp,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+                fontStyle = FontStyle.Italic
+            )
             Text(
                 text = weather.name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = weather.timezone,
-                fontStyle = FontStyle.Italic,
-                fontSize = 14.sp,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Divider(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(start = 20.dp)
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "Weathers:",
+                text = "Timezone :",
+                fontSize = 18.sp,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+                fontStyle = FontStyle.Italic
+            )
+            Text(
+                text = weather.timezone,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp)
             )
+            Spacer(modifier = Modifier.height(20.dp))
             Divider(
                 modifier = Modifier
                     .fillMaxWidth()
             )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "Weathers:",
+                fontSize = 18.sp,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+                fontStyle = FontStyle.Italic
+            )
+            Spacer(modifier = Modifier.height(20.dp))
             repeat(weather.weathers.size){index ->
                 val weathers = screenState.data.weathers.elementAt(index)
                 Text(
-                    text = "${weathers.description}: ${weathers.main}",
-                    fontSize = 14.sp,
-                    modifier = Modifier.fillMaxWidth(),
-                    overflow = TextOverflow.Ellipsis
+                    text = "${weathers.main}: ${weathers.description}",
+                    fontSize = 18.sp,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp)
                 )
             }
+            Spacer(modifier = Modifier.height(20.dp))
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
             Button(
+                modifier = Modifier.align(
+                    Alignment.CenterHorizontally
+                ),
+                enabled = !(cityViewModel.savedCity.value ?: "").equals(cityViewModel.cityScreenState.searchQuery, ignoreCase = true),
                 onClick = { viewModel.onEvent(
                     WeatherDetailsEvent.OnCitySaved(
                         cityViewModel.cityScreenState.searchQuery
                     )
-                ) }
+                ) },
             ) {
-
-
+                Text(text = "Save city")
             }
         }
     }
