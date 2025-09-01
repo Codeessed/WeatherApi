@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 @Composable
-fun <T> ObserveAsEvents(flow: Flow<T>, lifecycleOwner: LifecycleOwner, onEvent: (T) -> Unit){
+fun <T> ObserveAsEvents(flow: Flow<T>, onEvent: (T) -> Unit){
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     LaunchedEffect(flow, lifecycleOwner.lifecycle) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
             withContext(Dispatchers.Main.immediate){
