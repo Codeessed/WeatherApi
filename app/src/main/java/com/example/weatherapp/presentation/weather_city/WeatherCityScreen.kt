@@ -62,9 +62,9 @@ fun WeatherCityScreen(
     val detailsLoading = remember { mutableStateOf(false) }
 
 
-    ObserveAsEvents(flow = detailsChannelState, lifecycleOwner = LocalLifecycleOwner.current){ detailsChannel ->
+    ObserveAsEvents(flow = detailsChannelState){ detailsChannel ->
         detailsLoading.value = detailsChannel.isLoading
-        if(detailsChannel.message.isEmpty())
+        if(detailsChannel.data != null)
             navigator.navigate(
                 direction =  WeatherDetailsScreenDestination
             )

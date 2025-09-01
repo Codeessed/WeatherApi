@@ -49,7 +49,7 @@ class WeatherDetailsViewModel @Inject constructor(
                         isLoading = true
                     )
                     _weatherDetailsChannel.send(
-                        detailsScreenState.copy(
+                        WeatherDetailsState(
                             isLoading = true
                         )
                     )
@@ -61,7 +61,7 @@ class WeatherDetailsViewModel @Inject constructor(
                         message = detailsResult.message ?: ""
                     )
                     _weatherDetailsChannel.send(
-                        detailsScreenState.copy(
+                        WeatherDetailsState(
                             isLoading = false,
                             data = detailsResult.data,
                             message = detailsResult.message ?: ""
