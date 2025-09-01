@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -39,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherapp.navigation.MainNavGraph
 //import com.example.weatherapp.navigation.MainNavGraph
 import com.example.weatherapp.presentation.weather_city.WeatherCityEvent
+import com.example.weatherapp.presentation.weather_city.WeatherCityViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -47,7 +49,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Composable
 @Destination
 fun WeatherDetailsScreen(
-    viewModel: WeatherDetailsViewModel
+    viewModel: WeatherDetailsViewModel,
+    cityViewModel: WeatherCityViewModel
 ){
 
     val screenState = viewModel.detailsScreenState
@@ -99,6 +102,16 @@ fun WeatherDetailsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     overflow = TextOverflow.Ellipsis
                 )
+            }
+            Button(
+                onClick = { viewModel.onEvent(
+                    WeatherDetailsEvent.OnCitySaved(
+                        cityViewModel.cityScreenState.searchQuery
+                    )
+                ) }
+            ) {
+
+
             }
         }
     }

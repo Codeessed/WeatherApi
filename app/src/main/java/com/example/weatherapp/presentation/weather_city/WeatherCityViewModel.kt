@@ -1,8 +1,11 @@
 package com.example.weatherapp.presentation.weather_city
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.data.mapper.toWeatherGeoMap
@@ -15,21 +18,34 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
 class WeatherCityViewModel @Inject constructor(
-    private val weatherRepository: WeatherRepository
+    private val weatherRepository: WeatherRepository,
 ): ViewModel() {
 
     var cityScreenState  by  mutableStateOf(WeatherCityState())
 
     var cityStateList  by  mutableStateOf<Map<String, Boolean>>(hashMapOf())
+
+    val savedCity: StateFlow<String?> = weatherRepository.getCityName().stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        null
+    )
 
     var selectedWeatherGeo  by  mutableStateOf(
         WeatherGeo(
@@ -41,8 +57,17 @@ class WeatherCityViewModel @Inject constructor(
         )
     )
 
-    private val _cityGeoCode = Channel<String>()
-    val cityGeoCode = _cityGeoCode.receiveAsFlow()
+    init {
+        viewModelScope.launch {
+            savedCity.collect(){
+                onEvent(
+                    WeatherCityEvent.OnSearchQueryChange(
+                        it ?: "saved"
+                    )
+                )
+            }
+        }
+    }
 
     private var searchCityJob: Job? = null
 
@@ -72,14 +97,8 @@ class WeatherCityViewModel @Inject constructor(
                             message = weatherGeoResult.message ?: ""
                         )
                         cityStateList = cityScreenState.data.toWeatherGeoMap() ?: hashMapOf()
-
-
-//                    _cityGeoCode.send(geoData)
                     }
                 }
-
-            }
-            is WeatherCityEvent.OnGetWeatherDetail -> {
 
             }
             is WeatherCityEvent.OnCityItemClick -> {
