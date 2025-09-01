@@ -16,10 +16,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.weatherapp.presentation.weather_city.NavGraphs
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
+import com.example.weatherapp.presentation.NavGraphs
+import com.example.weatherapp.presentation.weather_details.WeatherDetailsViewModel
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.navigation.dependency
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -27,13 +32,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val navController = rememberNavController()
             WeatherAppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                     .padding(WindowInsets.systemBars.asPaddingValues()),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DestinationsNavHost(navGraph = NavGraphs.root)
+                    DestinationsNavHost(
+                        navGraph = NavGraphs.main,
+                        navController = navController,
+                        dependenciesContainerBuilder = {
+                            dependency(hiltViewModel<WeatherDetailsViewModel>(this@MainActivity))
+                        }
+                    )
                 }
             }
         }

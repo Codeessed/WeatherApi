@@ -24,27 +24,51 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.weatherapp.navigation.MainNavGraph
+import com.example.weatherapp.presentation.destinations.WeatherDetailsScreenDestination
+//import com.example.weatherapp.presentation.destinations.WeatherDetailsScreenDestination
+import com.example.weatherapp.presentation.weather_details.WeatherDetailsEvent
+import com.example.weatherapp.presentation.weather_details.WeatherDetailsViewModel
+import com.example.weatherapp.util.ObserveAsEvents
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+@MainNavGraph(start = true)
+@Destination
 @Composable
-@Destination(start = true)
 fun WeatherCityScreen(
     navigator: DestinationsNavigator,
-    viewModel: WeatherCityViewModel = hiltViewModel()
+    viewModel: WeatherCityViewModel = hiltViewModel(),
+    detailsViewModel: WeatherDetailsViewModel,
 ){
 
     val screenState = viewModel.cityScreenState
+    val detailsChannelState = detailsViewModel.weatherDetailsChannel
     val cityStatePickedMap = viewModel.cityStateList
     val scrollState = rememberScrollState()
+    val detailsLoading = remember { mutableStateOf(false) }
+
+
+    ObserveAsEvents(flow = detailsChannelState, lifecycleOwner = LocalLifecycleOwner.current){ detailsChannel ->
+        detailsLoading.value = detailsChannel.isLoading
+        if(detailsChannel.message.isEmpty())
+            navigator.navigate(
+                direction =  WeatherDetailsScreenDestination
+            )
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -71,64 +95,72 @@ fun WeatherCityScreen(
                 singleLine = true
             )
             Spacer(modifier = Modifier.height(50.dp))
+            if(cityStatePickedMap.isNotEmpty()){
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
 
-            if(cityStatePickedMap.isNotEmpty())
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-
-            ) {
-                repeat(screenState.data.size){index ->
-                    val weatherGeo = screenState.data.elementAt(index)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 20.dp)
-                            .clickable {
-                                viewModel.onEvent(
-                                    WeatherCityEvent.OnCityItemClick(
-                                        lat = weatherGeo.latitude,
-                                        long = weatherGeo.longitude
-                                    )
-                                )
-                            },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = cityStatePickedMap.values.elementAt(index),
-                            onClick = {
-                                viewModel.onEvent(
-                                    WeatherCityEvent.OnCityItemClick(
-                                        lat = weatherGeo.latitude,
-                                        long = weatherGeo.longitude
-                                    )
-                                )
-                            }
-                        )
-                        Text(
+                ) {
+                    repeat(screenState.data.size){index ->
+                        val weatherGeo = screenState.data.elementAt(index)
+                        Row(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(start = 10.dp),
-                            text = "${weatherGeo.name}, ${weatherGeo.state}. ${weatherGeo.country}",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                                .padding(horizontal = 20.dp)
+                                .clickable {
+                                    viewModel.onEvent(
+                                        WeatherCityEvent.OnCityItemClick(
+                                            lat = weatherGeo.latitude,
+                                            long = weatherGeo.longitude
+                                        )
+                                    )
+                                },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = cityStatePickedMap.values.elementAt(index),
+                                onClick = {
+                                    viewModel.onEvent(
+                                        WeatherCityEvent.OnCityItemClick(
+                                            lat = weatherGeo.latitude,
+                                            long = weatherGeo.longitude
+                                        )
+                                    )
+                                }
+                            )
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(start = 10.dp),
+                                text = "${weatherGeo.name}, ${weatherGeo.state}. ${weatherGeo.country}",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
                     }
-                }
-                Spacer(modifier = Modifier.height(50.dp))
-                Button(
-                    onClick = {  },
-                    enabled = cityStatePickedMap.values.contains(true) ,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
-                ) {
-                    Text(text = "Continue")
-                }
-                Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(50.dp))
+                    Button(
+                        onClick = {
+                            detailsViewModel.onEvent(
+                                WeatherDetailsEvent.OnGetCityDetails(
+                                    lat = viewModel.selectedWeatherGeo.latitude,
+                                    lon = viewModel.selectedWeatherGeo.longitude
+                                )
+                            )
+                        },
+                        enabled = cityStatePickedMap.values.contains(true) ,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
+                    ) {
+                        Text(text = "Continue")
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
 
+                }
             }
+
 
             if(cityStatePickedMap.isEmpty() && !screenState.isLoading)
                 Column(
@@ -164,18 +196,22 @@ fun WeatherCityScreen(
                 }
 
         }
-        if(screenState.isLoading)
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)),
-            contentAlignment = Alignment.Center,
-
-        ){
-            CircularProgressIndicator(progress = 1f)
-        }
+        if(screenState.isLoading || detailsLoading.value)
+            ProgressBox()
     }
 
 
 
+}
+
+@Composable
+fun ProgressBox(){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)),
+        contentAlignment = Alignment.Center,
+    ){
+        CircularProgressIndicator(progress = 1f)
+    }
 }

@@ -1,6 +1,5 @@
 package com.example.weatherapp.data.mapper
 
-import android.util.Log
 import com.example.weatherapp.data.remote.dto.WeatherGeoDto
 import com.example.weatherapp.domain.model.WeatherGeo
 

@@ -1,7 +1,9 @@
 package com.example.weatherapp.data.repository
 
+import com.example.weatherapp.data.mapper.toWeatherDetails
 import com.example.weatherapp.data.mapper.toWeatherGeoList
 import com.example.weatherapp.data.remote.WeatherApi
+import com.example.weatherapp.domain.model.WeatherDetails
 import com.example.weatherapp.domain.model.WeatherGeo
 import com.example.weatherapp.domain.repository.WeatherRepository
 import com.example.weatherapp.util.Resource
@@ -18,6 +20,17 @@ class WeatherRepositoryImpl @Inject constructor(
             val response = weatherApi.getCityGeo(query = query)
             Resource.Success(
                 response.toWeatherGeoList()
+            )
+        }catch (e: Exception){
+            Resource.Error("An error occurred: $e")
+        }
+    }
+
+    override suspend fun getWeatherDetails(lat: String, lon: String): Resource<WeatherDetails> {
+        return try {
+            val response = weatherApi.getWeatherData(lat = lat, lon = lon)
+            Resource.Success(
+                response.toWeatherDetails()
             )
         }catch (e: Exception){
             Resource.Error("An error occurred: $e")
