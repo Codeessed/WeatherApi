@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -77,23 +79,6 @@ fun WeatherCityScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             Spacer(modifier = Modifier.height(20.dp))
-            OutlinedTextField(
-                value = screenState.searchQuery,
-                onValueChange = {
-                    viewModel.onEvent(
-                        WeatherCityEvent.OnSearchQueryChange(it)
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                placeholder = {
-                    Text(text = "City name")
-                },
-                maxLines = 1,
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(50.dp))
             if(cityStatePickedMap.isNotEmpty()){
                 Column(
                     modifier = Modifier
