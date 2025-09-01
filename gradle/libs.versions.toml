@@ -16,13 +16,17 @@ composeBom = "2023.08.00"
 retrofit = "2.9.0"
 okhttp = "4.9.1"
 hilt = "2.51.1"
-compose-destinations = "1.1.2-beta"
+compose-destinations = "1.9.63"
+#compose-destinations = "1.5.38-beta"
+#compose-destinations = "1.11.9"
 #ksp = "2.1.0-1.0.29"
 #ksp = "1.9.25-1.0.20"
 ksp = "1.9.0-1.0.13"
 hilt-compiler = "2.51.1"
 hilt-lifecycle = "1.0.0-alpha03"
 hilt-navigation-compose = "1.2.0"
+#navigationCommonAndroid = "2.9.3"
+navigationCommonAndroid = "2.8.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +54,8 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", v
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 compose-destinations-core = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "compose-destinations" }
 compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
+#androidx-navigation-common-android = { group = "androidx.navigation", name = "navigation-common-android", version.ref = "navigationCommonAndroid" }
+androidx-navigation-common-android = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCommonAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -60,10 +66,6 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 
-
-#// Compose Nav Destinations
-#implementation 'io.github.raamcosta.compose-destinations:core:1.1.2-beta'
-#ksp 'io.github.raamcosta.compose-destinations:ksp:1.1.2-beta'
 
 
 

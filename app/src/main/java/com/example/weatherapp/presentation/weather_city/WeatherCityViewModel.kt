@@ -1,6 +1,5 @@
 package com.example.weatherapp.presentation.weather_city
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,7 +9,6 @@ import com.example.weatherapp.data.mapper.toWeatherGeoMap
 import com.example.weatherapp.data.mapper.updateSelectedGeo
 import com.example.weatherapp.domain.model.WeatherGeo
 import com.example.weatherapp.domain.repository.WeatherRepository
-import com.example.weatherapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -32,6 +30,16 @@ class WeatherCityViewModel @Inject constructor(
     var cityScreenState  by  mutableStateOf(WeatherCityState())
 
     var cityStateList  by  mutableStateOf<Map<String, Boolean>>(hashMapOf())
+
+    var selectedWeatherGeo  by  mutableStateOf(
+        WeatherGeo(
+            name = "",
+            latitude = "",
+            longitude = "",
+            country = "",
+            state = ""
+        )
+    )
 
     private val _cityGeoCode = Channel<String>()
     val cityGeoCode = _cityGeoCode.receiveAsFlow()
@@ -73,16 +81,15 @@ class WeatherCityViewModel @Inject constructor(
             }
             is WeatherCityEvent.OnGetWeatherDetail -> {
 
-
             }
             is WeatherCityEvent.OnCityItemClick -> {
 
-                val selectedGeo = cityScreenState.data.find { geoDetails ->
+                selectedWeatherGeo = cityScreenState.data.find { geoDetails ->
                     geoDetails.latitude == event.lat && geoDetails.longitude == event.long
-                }
+                }!!
 
                 cityStateList = cityStateList.updateSelectedGeo(
-                    selectedKey = selectedGeo!!.country,
+                    selectedKey = selectedWeatherGeo.country,
                 )
 
             }
