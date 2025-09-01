@@ -51,7 +51,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Composable
 fun WeatherCityScreen(
     navigator: DestinationsNavigator,
-    viewModel: WeatherCityViewModel = hiltViewModel(),
+    viewModel: WeatherCityViewModel,
     detailsViewModel: WeatherDetailsViewModel,
 ){
 
@@ -60,7 +60,6 @@ fun WeatherCityScreen(
     val cityStatePickedMap = viewModel.cityStateList
     val scrollState = rememberScrollState()
     val detailsLoading = remember { mutableStateOf(false) }
-
 
     ObserveAsEvents(flow = detailsChannelState){ detailsChannel ->
         detailsLoading.value = detailsChannel.isLoading
@@ -194,7 +193,6 @@ fun WeatherCityScreen(
                     }
 
                 }
-
         }
         if(screenState.isLoading || detailsLoading.value)
             ProgressBox()

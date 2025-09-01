@@ -4,7 +4,7 @@
     <style name="Theme.WeatherApp" parent="android:Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.App.Starting" parent="Theme.WeatherApp">
-        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowBackground">?attr/windowSplashScreenBackground</item>
         <item name="android:theme">@style/Theme.WeatherApp</item>
     </style>
 </resources>

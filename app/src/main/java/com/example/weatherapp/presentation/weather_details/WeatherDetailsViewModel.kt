@@ -38,7 +38,9 @@ class WeatherDetailsViewModel @Inject constructor(
     fun onEvent(event: WeatherDetailsEvent){
         when(event){
             is WeatherDetailsEvent.OnCitySaved -> {
-                val query = event.query
+                viewModelScope.launch {
+                    weatherRepository.saveCityName(event.query)
+                }
             }
             is WeatherDetailsEvent.OnNavigateBack -> {
 
