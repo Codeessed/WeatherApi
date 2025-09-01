@@ -16,12 +16,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.presentation.NavGraphs
+import com.example.weatherapp.presentation.common.TopBar
 import com.example.weatherapp.presentation.weather_city.WeatherCityEvent
 import com.example.weatherapp.presentation.weather_city.WeatherCityViewModel
 import com.example.weatherapp.presentation.weather_details.WeatherDetailsViewModel
@@ -46,41 +49,48 @@ class MainActivity : ComponentActivity() {
             }
         }
         enableEdgeToEdge()
+
+
         setContent {
             val navController = rememberNavController()
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+            val isRootDestination = currentDestination?.route == NavGraphs.main.startRoute.route
             WeatherAppTheme {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(WindowInsets.systemBars.asPaddingValues()),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    DestinationsNavHost(
-                        navGraph = NavGraphs.main,
-                        navController = navController,
-                        dependenciesContainerBuilder = {
-                            dependency(hiltViewModel<WeatherDetailsViewModel>(this@MainActivity))
-                            dependency(hiltViewModel<WeatherCityViewModel>(this@MainActivity))
-                        }
-                    )
+                Scaffold(
+                    topBar = {
+                        TopBar(
+                            modifier = Modifier,
+                            isFirstPage = isRootDestination,
+                            text = weatherCityViewModel.cityScreenState.searchQuery,
+                            title = currentDestination?.route.toString(),
+                            onTextChange = {
+                                weatherCityViewModel.onEvent(
+                                    WeatherCityEvent.OnSearchQueryChange(it)
+                                )
+                            },
+                            onNavigationClick = { navController.popBackStack() }
+                        )
+                    }
+                ) { paddingValues ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        DestinationsNavHost(
+                            navGraph = NavGraphs.main,
+                            navController = navController,
+                            dependenciesContainerBuilder = {
+                                dependency(hiltViewModel<WeatherDetailsViewModel>(this@MainActivity))
+                                dependency(hiltViewModel<WeatherCityViewModel>(this@MainActivity))
+                            }
+                        )
+                    }
                 }
+
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WeatherAppTheme {
-        Greeting("Android")
     }
 }
