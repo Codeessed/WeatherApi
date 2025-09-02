@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -18,13 +20,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.presentation.NavGraphs
+import com.example.weatherapp.presentation.common.SearchCityTextField
 import com.example.weatherapp.presentation.common.TopBar
+import com.example.weatherapp.presentation.common.TopBarNavigationIcon
 import com.example.weatherapp.presentation.weather_city.WeatherCityEvent
 import com.example.weatherapp.presentation.weather_city.WeatherCityViewModel
 import com.example.weatherapp.presentation.weather_details.WeatherDetailsViewModel
@@ -61,15 +66,38 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         TopBar(
                             modifier = Modifier,
-                            isFirstPage = isRootDestination,
-                            text = weatherCityViewModel.cityScreenState.searchQuery,
-                            title = currentDestination?.route.toString(),
-                            onTextChange = {
-                                weatherCityViewModel.onEvent(
-                                    WeatherCityEvent.OnSearchQueryChange(it)
-                                )
+                            title = {
+                                if(isRootDestination){
+                                    SearchCityTextField(
+                                        onTextChange = {
+                                            weatherCityViewModel.onEvent(
+                                                WeatherCityEvent.OnSearchQueryChange(
+                                                    it
+                                                )
+                                            )
+                                        },
+                                        text = weatherCityViewModel.cityScreenState.searchQuery
+                                    )
+                                }else{
+                                    Text(
+                                        text = (currentDestination?.route ?: "").apply {
+                                            split("_")
+                                        }.toString(),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
                             },
-                            onNavigationClick = { navController.popBackStack() }
+                            navigationIcon = {
+                                if(!isRootDestination){
+                                    TopBarNavigationIcon(
+                                        onTopBarNavigationIconClick = {
+                                            navController.popBackStack()
+                                        },
+                                        icon = Icons.Rounded.ArrowBack
+                                    )
+                                }
+                            }
                         )
                     }
                 ) { paddingValues ->
